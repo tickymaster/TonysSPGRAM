@@ -9,81 +9,54 @@
 #include "chrono"
 
 int main() {
-	TonysFFT fft;
-	WavFile wav;
-	TonysSPGRAM spectogram;
+    WavFile wav;
+    TonysSPGRAM spectogram;
     TGraph graph;
 
-	using namespace std;
-	using namespace matplot;
+    using namespace std;
+    using namespace matplot;
 
-	string fileName = "vowel_a2-46967.wav";
+    string fileName = "Recording-_18_.wav";
+    wav.load(fileName);
+    vector<int16_t> audioData = wav.getAudioData();
 
-	wav.load(fileName);
-	
-	vector<int16_t> audioData = wav.getAudioData();
+    spectogram.GenerateSpectogramMatrix(audioData, 1024);
 
-	spectogram.GenerateSpectogram(audioData, 1024);
+    auto MagnitudeMatrix = spectogram.GetMagnitudeSpectogramMatrix();
 
-    vector<vector<CmplxNum>> ComplexSpectogramData = spectogram.GetSpectogramMatrix();
+    //spectogram.ConvdB(MagnitudeMatrix);
 
-	vector<vector<int16_t>> SpectogramData = spectogram.GetMagnitudeSpectogramMatrix();
+    auto normalisedData = graph.normalizeTo255(MagnitudeMatrix);
 
-
-    //
-    //
-    // Spectogram
-    //
-    //
+    auto Frequencies = spectogram.GetFreuqencies();
+    
 
 
-    //range
+    //// Some random fft from the spectogram
+    //vector<int> range = normalisedData[100];
 
-	vector<int> Frequencies = spectogram.GetFreuqencies();
+    //// Create a figure
+    //matplot::figure();
 
-    //domain
+    //// Plot the data
+    //matplot::plot(Frequencies, range);
 
-    vector<double> indicies = spectogram.GetTime();
+    //// Set axis labels
+    //matplot::xlabel("Domain (Indices)");
+    //matplot::ylabel("Range (SpectogramData[1])");
 
-    //depth/colour
+    //// Display the plot
+    //matplot::show();
 
-    vector<vector<int16_t>> normalisedData = graph.normaliseData(SpectogramData);
+    //// Wait for user to press Enter before proceeding to the next plot
+    //cout << "Press Enter to continue to the next plot...";
+    //cin.get();  // Waits for the user to press Enter
 
-
-    auto h = imagesc(normalisedData);
+     //Display spectrogram
+    auto h = matplot::imagesc(normalisedData);
+    colormap(palette::hot());
     colorbar();
-    xlabel("Frequency Bins");
-    ylabel("Time Bins");
-    title("Normalised Spectogram");
     show();
 
-
-
-
-
-
-
-
-
-    //for (size_t i = 0; i < SpectogramData.size(); i++)
-    //{
-    //    vector<int16_t> range = SpectogramData[i];
-
-    //    // Create a figure
-    //    matplot::figure();
-
-    //    // Plot the data
-    //    matplot::plot(Frequencies, range);
-
-    //    // Set axis labels
-    //    matplot::xlabel("Domain (Indices)");
-    //    matplot::ylabel("Range (SpectogramData[1])");
-
-    //    // Display the plot
-    //    matplot::show();
-
-    //    // Wait for user to press Enter before proceeding to the next plot
-    //    cout << "Press Enter to continue to the next plot...";
-    //    cin.get();  // Waits for the user to press Enter
-    //}
+    return 0;
 }

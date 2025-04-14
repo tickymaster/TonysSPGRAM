@@ -7,7 +7,7 @@
 class TGraph {
 public:
 	void displaySpectogram();
-	std::vector<std::vector<int16_t>> normaliseData(std::vector<std::vector<int16_t>>& MagnitudesMatrix);
+	std::vector<std::vector<int>> normalizeTo255(const std::vector<std::vector<double>>& dbMatrix);
 };
 
 #endif // TGRAPH_H

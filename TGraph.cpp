@@ -8,37 +8,40 @@
 void TGraph::displaySpectogram() {
 
 }
-std::vector<std::vector<int16_t>> TGraph::normaliseData(std::vector<std::vector<int16_t>>& MagnitudesMatrix) {
-	using namespace std;
+std::vector<std::vector<int>> TGraph::normalizeTo255(const std::vector<std::vector<double>>& dbMatrix) {
+    using namespace std;
 
-	int16_t max_val = numeric_limits<int16_t>::lowest();
-	int16_t min_val = numeric_limits<int16_t>::max();
+    // Copy dimensions
+    vector<vector<int>> matrix(dbMatrix.size(), vector<int>(dbMatrix[0].size()));
 
-	for (const auto& row : MagnitudesMatrix)
-	{
-		for (int16_t val : row)
-		{
-			min_val = min(min_val, val);
-			max_val = max(max_val, val);
-		}
-	}
+    // Find the minimum and maximum in the origninal data.
+    double min_val = numeric_limits<double>::max();
+    double max_val = numeric_limits<double>::lowest();
+    for (auto& row : dbMatrix)
+    {
+        for (auto& value : row)
+        {
+            min_val = min(min_val, value);
+            max_val = max(max_val, value);
+        }
+    }
 
-	if (max_val == min_val) {
-		cerr << "All values in matrix are the same, normalization is ambiguous." << endl;
-		return vector<vector<int16_t>>(MagnitudesMatrix.size(), vector<int16_t>(MagnitudesMatrix[0].size(), 0));
-	}
+    double range = max_val - min_val;
+    if (range == 0) {
+        range = 1;
+    }
 
-	vector<vector<int16_t>> normalised(MagnitudesMatrix.size(), vector<int16_t>(MagnitudesMatrix[0].size(), 0));
+    // Normalize each element to the range [0, 255]
+    for (size_t i = 0; i < dbMatrix.size(); i++)
+    {
+        for (size_t j = 0; j < dbMatrix[0].size(); j++)
+        {
+            double normalized = (dbMatrix[i][j] - min_val) / range * 255.0;
+            matrix[i][j] = static_cast<int>(normalized);
+        }
+    }
 
-	for (size_t i = 0; i < MagnitudesMatrix.size(); i++)
-	{
-		for (size_t j = 0; j < MagnitudesMatrix[i].size(); j++)
-		{
-			normalised[i][j] = static_cast<int16_t>(
-				255.0 * (MagnitudesMatrix[i][j] - min_val) / static_cast<double>(max_val - min_val)
-				);
-		}
-	}
-		
-	return normalised;
-}	
+
+    return matrix;
+}
+

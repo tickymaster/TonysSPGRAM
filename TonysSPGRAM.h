@@ -8,16 +8,18 @@
 class TonysSPGRAM {
 public:
     // Generates a spectrogram from the given audio data
-    void GenerateSpectogram(const std::vector<int16_t>& audioData, int binSize = 1024);
+    void GenerateSpectogramMatrix(const std::vector<int16_t>& audioData, int binSize = 1024);
 
     // Returns the computed spectrogram matrix
     const std::vector<std::vector<CmplxNum>>& GetSpectogramMatrix() const;
 
-    std::vector<std::vector<int16_t>>& GetMagnitudeSpectogramMatrix();
+    std::vector<std::vector<double>> GetMagnitudeSpectogramMatrix();
 
     const std::vector<int> GetFreuqencies();
 
     const std::vector<double> GetTime();
+
+    void ConvdB(std::vector<std::vector<double>>& magnitudeDbMatrix);
 
     int f_increment; //frequency increment (how much each index represents)
 

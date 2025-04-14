@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <cmath>
 
-void TonysSPGRAM::GenerateSpectogram(const std::vector<int16_t>& audioData, int binSize) {
+void TonysSPGRAM::GenerateSpectogramMatrix(const std::vector<int16_t>& audioData, int binSize) {
     if (binSize <= 0) {
         throw std::invalid_argument("Bin size must be greater than 0.");
     }
@@ -57,6 +57,7 @@ const std::vector<double> TonysSPGRAM::GetTime() {
     {
         TimeIndicies.push_back(i * index);
     }
+    return TimeIndicies;
 }
 
 const std::vector<int> TonysSPGRAM::GetFreuqencies() {
@@ -71,19 +72,22 @@ const std::vector<int> TonysSPGRAM::GetFreuqencies() {
     return indices;
 }
 
-std::vector<std::vector<int16_t>>& TonysSPGRAM::GetMagnitudeSpectogramMatrix() {
-    MagnitudeSpectogramMatrix.resize(numBins, std::vector<int16_t>(N/2));
-    for (size_t i = 0; i < numBins; i++)
-    {
-        for (size_t j = 0; j < static_cast<size_t>(N/2); j++)
-        {
-            double mag = SpectogramMatrix[i][j].getModulus();
-
-            int16_t db = static_cast<int16_t>(20.0 * log10(mag + 1.0));
-
-            MagnitudeSpectogramMatrix[i][j] = db;
+std::vector<std::vector<double>> TonysSPGRAM::GetMagnitudeSpectogramMatrix() {
+    std::vector<std::vector<double>> magnitudeDbMatrix(numBins, std::vector<double>(N / 2));
+    for (size_t i = 0; i < numBins; i++) {
+        for (size_t j = 0; j < static_cast<size_t>(N / 2); j++) {
+            magnitudeDbMatrix[i][j] = SpectogramMatrix[i][j].getModulus();
         }
     }
 
-    return MagnitudeSpectogramMatrix;
+    return magnitudeDbMatrix;
+}
+
+void TonysSPGRAM::ConvdB(std::vector<std::vector<double>>& magnitudeDbMatrix) {
+    double epsilon = 1e-10; // Small value to avoid log(0)
+    for (size_t i = 0; i < numBins; i++) {
+        for (size_t j = 0; j < static_cast<size_t>(N / 2); j++) {
+            magnitudeDbMatrix[i][j] = 20 * log10(magnitudeDbMatrix[i][j]+epsilon);
+        }
+    }
 }
